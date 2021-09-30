@@ -12,10 +12,12 @@
 __all__ = ["HDFMapDigitizers"]
 
 import h5py
+import warnings
 
 from typing import Dict, Tuple
 
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 from .sis3301 import HDFMapDigiSIS3301
 from .siscrate import HDFMapDigiSISCrate
@@ -103,9 +105,12 @@ class HDFMapDigitizers(dict):
                     digi_dict[name] = self._defined_mapping_classes[name](
                         self.__data_group[name]
                     )
-                except HDFMappingError:
+                except HDFMappingError as err:
                     # mapping failed
-                    pass
+                    warnings.warn(
+                        f"Mapping for digitizer '{name}' failed with the "
+                        f"following error: {err}", HDFMappingWarning
+                    )
 
         # return dictionary
         return digi_dict

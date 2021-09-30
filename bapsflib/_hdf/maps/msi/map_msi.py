@@ -12,10 +12,12 @@
 __all__ = ["HDFMapMSI"]
 
 import h5py
+import warnings
 
 from typing import Dict
 
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 from .discharge import HDFMapMSIDischarge
 from .gaspressure import HDFMapMSIGasPressure
@@ -101,9 +103,12 @@ class HDFMapMSI(dict):
                 try:
                     diag_map = self._defined_mapping_classes[name](self.__msi_group[name])
                     msi_dict[name] = diag_map
-                except HDFMappingError:
+                except HDFMappingError as err:
                     # mapping failed
-                    pass
+                    warnings.warn(
+                        f"Mapping for digitizer '{name}' failed with the "
+                        f"following error: {err}", HDFMappingWarning
+                    )
 
         # return dictionary
         return msi_dict
