@@ -11,11 +11,14 @@
 """Module for defining the main control mapper `HDFMapControls`."""
 __all__ = ["HDFMapControls"]
 
+import warnings
+
 import h5py
 
 from typing import Dict, Tuple, Union
 
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 from .n5700ps import HDFMapControlN5700PS
 from .nixyz import HDFMapControlNIXYZ
@@ -110,9 +113,12 @@ class HDFMapControls(dict):
                 try:
                     _map = self._defined_mapping_classes[name](self.__data_group[name])
                     control_dict[name] = _map
-                except HDFMappingError:
+                except HDFMappingError as err:
                     # mapping failed
-                    pass
+                    warnings.warn(
+                        f"Mapping for digitizer '{name}' failed with the "
+                        f"following error: {err}", HDFMappingWarning
+                    )
 
         # return dictionary
         return control_dict
