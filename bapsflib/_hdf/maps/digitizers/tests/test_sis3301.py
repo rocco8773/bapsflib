@@ -17,7 +17,7 @@ import unittest as ut
 from numpy.lib import recfunctions as rfn
 from unittest import mock
 
-from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.exceptions import BaPSFWarning, HDFMappingError
 
 from ..sis3301 import HDFMapDigiSIS3301
 from .common import DigitizerTestCase
@@ -55,7 +55,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
         dset_name = f"{config_name} [{brd}:{ch}]"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
 
         # not specified, and MULTIPLE active configs
@@ -318,7 +318,7 @@ class TestSIS3301(DigitizerTestCase):
         brd_path = f"{config_path}/Boards[0]"
         new_path = f"{config_path}/Not a board"
         self.dgroup.move(brd_path, new_path)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
         self.dgroup.move(new_path, brd_path)
 
@@ -328,7 +328,7 @@ class TestSIS3301(DigitizerTestCase):
         brd_group = self.dgroup[brd_path]
         brd = brd_group.attrs["Board"]
         brd_group.attrs["Board"] = "five"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn("five", [conn[0] for conn in _map.configs[config_name][adc]])
@@ -336,7 +336,7 @@ class TestSIS3301(DigitizerTestCase):
         # 'Board' attribute for a board config group is a negative   (3)
         # int
         brd_group.attrs["Board"] = -1
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn(-1, [conn[0] for conn in _map.configs[config_name][adc]])
@@ -348,7 +348,7 @@ class TestSIS3301(DigitizerTestCase):
         path2 = "Configuration: config02/Boards[1]"
         brd = self.dgroup[path2].attrs["Board"]
         self.dgroup[path2].attrs["Board"] = self.dgroup[path].attrs["Board"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs["config02"][adc]])
@@ -360,7 +360,7 @@ class TestSIS3301(DigitizerTestCase):
         ch_path = f"{brd_path}/Channels[0]"
         new_path = f"{brd_path}/Not a channel"
         self.dgroup.move(ch_path, new_path)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
         self.dgroup.move(new_path, ch_path)
 
@@ -372,7 +372,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = self.dgroup[brd_path].attrs["Board"]
         ch = ch_group.attrs["Channel"]
         ch_group.attrs["Channel"] = "five"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -388,7 +388,7 @@ class TestSIS3301(DigitizerTestCase):
         # 'Channel' attribute for a channel config group is a        (7)
         # negative int
         ch_group.attrs["Channel"] = -1
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -408,7 +408,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = self.dgroup[brd_path].attrs["Board"]
         ch = self.dgroup[path2].attrs["Channel"]
         self.dgroup[path2].attrs["Channel"] = self.dgroup[path].attrs["Channel"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
@@ -423,7 +423,7 @@ class TestSIS3301(DigitizerTestCase):
             old_path = f"{brd_path}/{name}"
             new_path = old_path + "Q"
             self.dgroup.move(old_path, new_path)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
@@ -438,7 +438,7 @@ class TestSIS3301(DigitizerTestCase):
         config_group = self.dgroup[config_path]
         s2a = config_group.attrs["Samples to average"]
         config_group.attrs["Samples to average"] = b"Average 9.0 Samples"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             for conn in _map.configs[config_name][adc]:
@@ -454,7 +454,7 @@ class TestSIS3301(DigitizerTestCase):
         dset_name = f"{config_name} [{brd}:{ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -475,7 +475,7 @@ class TestSIS3301(DigitizerTestCase):
             dset_name = f"{config_name} [{brd}:{ch}]"
             new_name = dset_name + "Q"
             self.dgroup.move(dset_name, new_name)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
@@ -492,7 +492,7 @@ class TestSIS3301(DigitizerTestCase):
         self.dgroup.move(dset_name, new_name)
         data = np.empty(3, dtype=[("f1", np.int16), ("f2", np.int16)])
         self.dgroup.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -515,7 +515,7 @@ class TestSIS3301(DigitizerTestCase):
         self.dgroup.move(dset_name, new_name)
         data = np.empty((3, 100, 3), dtype=np.int16)
         self.dgroup.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -540,7 +540,7 @@ class TestSIS3301(DigitizerTestCase):
         dset = self.dgroup[new_name]
         data = np.empty((dset.shape[0], dset.shape[1] + 1), dtype=dset.dtype)
         self.dgroup.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -574,7 +574,7 @@ class TestSIS3301(DigitizerTestCase):
         self.dgroup.move(hdset_name, hdset_name + "Q")
         self.dgroup.create_dataset(dset_name, data=data2)
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -606,7 +606,7 @@ class TestSIS3301(DigitizerTestCase):
         hdata2 = hdata[names]
         self.dgroup.move(hdset_name, hdset_name + "Q")
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -634,7 +634,7 @@ class TestSIS3301(DigitizerTestCase):
         # wrong dtype
         hdata2 = np.empty(hdata.shape, dtype=[("Shot", np.float32)])
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -652,7 +652,7 @@ class TestSIS3301(DigitizerTestCase):
         # wrong shape
         hdata2 = np.empty(hdata.shape, dtype=[("Shot", np.uint32, 2)])
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -678,7 +678,7 @@ class TestSIS3301(DigitizerTestCase):
         hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
         self.dgroup.move(hdset_name, hdset_name + "Q")
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             chs = None
@@ -711,7 +711,7 @@ class TestSIS3301(DigitizerTestCase):
 
             self.dgroup.move(hdset_name, hdset_name + "Q")
             self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
@@ -857,7 +857,7 @@ class TestSIS3301(DigitizerTestCase):
             "Average 5.0 Samples"
         )
         _map = None
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             _map = self.map
         for conn in _map.configs[config_name][adc]:
             self.assertIsNone(conn[2]["sample average (hardware)"])
