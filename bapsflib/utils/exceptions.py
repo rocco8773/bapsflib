@@ -10,22 +10,36 @@
 #
 """Exceptions specific to `bapsflib`."""
 __all__ = [
+    "BaPSFError",
     "HDFMappingError",
     "HDFReadControlError",
     "HDFReadDigiError",
     "HDFReadMSIError",
     "HDFReadError",
+    "BaPSFWarning",
 ]
 
+# -- CUSTOM EXCEPTIONS -----------------------------------------------------------
 
-class HDFMappingError(Exception):
+
+class BaPSFError(Exception):
+    """
+    Base class of BaPSF (bapsflib) custom errors.
+
+    All custom exceptions raised by bapsflib should inherit from this
+    class.
+    """
+    pass
+
+
+class HDFMappingError(BaPSFError):
     """Exception for failed HDF5 mappings"""
 
     def __init__(self, device_name: str, why=""):
         super().__init__(f"'{device_name}' mapping failed: {why}")
 
 
-class HDFReadError(Exception):
+class HDFReadError(BaPSFError):
     """Exception for failed HDF5 reading"""
 
     pass
@@ -46,4 +60,16 @@ class HDFReadControlError(HDFReadError):
 class HDFReadMSIError(HDFReadError):
     """Exception for failed HDF5 reading of digitizer."""
 
+    pass
+
+# -- CUSTOM WARNINGS -------------------------------------------------------------
+
+
+class BaPSFWarning(Warning):
+    """
+    Base class of BaPSF (bapsflib) custom warnings.
+
+    All custom warnings issued by bapsflib should inherit from this
+    class.
+    """
     pass
