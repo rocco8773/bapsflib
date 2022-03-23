@@ -71,7 +71,7 @@ class FauxSISCrate(h5py.Group):
             elif self.sis3305_mode == 1:
                 mask = np.array(2 * [True, False, True, False], dtype=np.bool)
             else:
-                mask = np.ones(8, dtype=np.bool)
+                mask = np.ones(8, dtype=bool)
             mask = np.logical_not(mask)
             mask = mask.reshape(1, 8)
             mask = np.append(mask, mask, axis=0)
@@ -495,7 +495,7 @@ class FauxSISCrate(h5py.Group):
         self._sn_size = 100
         self._nt = 10000
         self._active_brdch = np.zeros(
-            (), dtype=[("SIS 3302", np.bool, (4, 8)), ("SIS 3305", np.bool, (2, 8))]
+            (), dtype=[("SIS 3302", bool, (4, 8)), ("SIS 3305", bool, (2, 8))]
         )
         self._active_brdch["SIS 3302"][0][0] = True
         self._active_brdch["SIS 3305"][0][0] = True
